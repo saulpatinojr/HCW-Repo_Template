@@ -3,9 +3,29 @@
 Turns a checkout created from the template into a ready repository.
 
 .DESCRIPTION
-Owner and repository name default to the origin remote. Stacks add Qlty
-plugins and CodeQL languages. With gh signed in, labels from
-.github/labels.json are created and Discussions are enabled.
+Run once from the root of a repository created from the template, before
+committing your own code. Replaces README.md with the project skeleton,
+writes CODEOWNERS, prunes dependabot.yml to the manifests present, points
+the issue chooser at the repository, adds the stack's CodeQL languages and
+Qlty plugins, and with gh signed in creates labels and enables Discussions.
+Safe to run again: every step checks whether it has already been done.
+
+.PARAMETER Name
+Repository name. Default: read from the origin remote.
+
+.PARAMETER Owner
+Code owner written to .github/CODEOWNERS, a user (@login) or a team
+(@org/team). Default: the account in the origin remote.
+
+.PARAMETER Stack
+Technology in the repository: node-typescript, python, terraform-ansible.
+Several allowed; none for a docs-only repository.
+
+.PARAMETER Prune
+Delete overlays/ and scripts/ when done.
+
+.PARAMETER SkipGitHub
+Do not call gh. Labels and Discussions must then be set up by hand.
 
 .EXAMPLE
 PS> .\scripts\Initialize-Repo.ps1 -Stack node-typescript -Prune
@@ -33,10 +53,13 @@ if (-not $Owner) { if ($slug) { $Owner = '@' + $slug.Split('/')[0] } else { thro
 $login = ($Owner.TrimStart('@') -split '/')[0]
 $slug = "$login/$Name"
 
-# README title
-$readme = Join-Path $root 'README.md'
-(Get-Content $readme -Raw).Replace('{{REPO_NAME}}', $Name) | Set-Content $readme -NoNewline
-Write-Host "README.md: title set to $Name"
+# README: the template's README gives way to the project README
+$skeleton = Join-Path $root 'docs\README.project.md'
+if (Test-Path $skeleton) {
+  (Get-Content $skeleton -Raw).Replace('{{REPO_NAME}}', $Name) | Set-Content (Join-Path $root 'README.md') -NoNewline
+  Remove-Item $skeleton
+  Write-Host "README.md: project README written for $Name"
+}
 
 # CODEOWNERS
 $co = Join-Path $root '.github\CODEOWNERS'
@@ -91,9 +114,13 @@ if ($extra.Count -gt 0) {
 }
 
 # Qlty stack overlays
+$qlty = Join-Path $root '.qlty\qlty.toml'
 foreach ($s in $Stack) {
   $part = Join-Path $root "overlays\$s\qlty.toml.part"
-  if (Test-Path $part) { Add-Content -Path (Join-Path $root '.qlty\qlty.toml') -Value ("`n" + (Get-Content $part -Raw)); Write-Host "qlty.toml: appended $s" }
+  if (-not (Test-Path $part)) { continue }
+  $first = (Select-String -Path $part -Pattern '^name = ' | Select-Object -First 1).Line
+  if ((Get-Content $qlty -Raw).Contains($first)) { Write-Host "qlty.toml: $s already present" }
+  else { Add-Content -Path $qlty -Value ("`n" + (Get-Content $part -Raw)); Write-Host "qlty.toml: appended $s" }
 }
 
 # Labels and Discussions through gh, when signed in
