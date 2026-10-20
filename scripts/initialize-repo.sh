@@ -12,6 +12,7 @@ prune=0; skip_github=0; stacks=()
 while [ $# -gt 0 ]; do case "$1" in
   --name) name="$2"; shift 2;; --owner) owner="$2"; shift 2;;
   --prune) prune=1; shift;; --skip-github) skip_github=1; shift;;
+  -h|--help) sed -n '2,4p' "$0"; exit 0;;
   *) stacks+=("$1"); shift;; esac; done
 [ -n "$owner" ] || { echo "No origin remote found: pass --owner @login" >&2; exit 2; }
 login="${owner#@}"; login="${login%%/*}"; slug="$login/$name"
@@ -22,7 +23,9 @@ name,owner,slug=sys.argv[1],sys.argv[2],sys.argv[3]; stacks=sys.argv[4:]
 def rw(p,fn):
     t=open(p).read(); n=fn(t)
     if n!=t: open(p,'w').write(n)
-rw('README.md',lambda t:t.replace('{{REPO_NAME}}',name)); print('README.md: title set to',name)
+if os.path.exists('docs/README.project.md'):  # the template's README gives way to the project README
+    open('README.md','w').write(open('docs/README.project.md').read().replace('{{REPO_NAME}}',name)); os.remove('docs/README.project.md')
+    print('README.md: project README written for',name)
 def owners(t):
     if not re.search(r'(?m)^\*\s+'+re.escape(owner)+r'\s*$',t): t=t.replace('# * @ORG/REPOSITORY-MAINTAINERS','* '+owner)
     return t
@@ -56,7 +59,11 @@ if extra:
     rw('.github/workflows/codeql.yml',lambda t:t.replace('language: [actions]','language: [actions, '+', '.join(extra)+']'))
     print('codeql.yml: languages actions,',', '.join(extra))
 PY
-for s in "${stacks[@]}"; do [ -f "overlays/$s/qlty.toml.part" ] && { printf '\n' >> .qlty/qlty.toml; cat "overlays/$s/qlty.toml.part" >> .qlty/qlty.toml; echo "qlty.toml: appended $s"; }; done
+for s in "${stacks[@]}"; do part="overlays/$s/qlty.toml.part"; [ -f "$part" ] || continue
+  first="$(grep -m1 '^name = ' "$part")"
+  if grep -qF "$first" .qlty/qlty.toml; then echo "qlty.toml: $s already present"
+  else printf '\n' >> .qlty/qlty.toml; cat "$part" >> .qlty/qlty.toml; echo "qlty.toml: appended $s"; fi
+done
 
 if [ "$skip_github" -eq 0 ] && command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
   python3 -I -c 'import json;[print(l["name"],l["color"],l["description"],sep="\t") for l in json.load(open(".github/labels.json"))]' |

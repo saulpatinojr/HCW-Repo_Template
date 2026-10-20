@@ -16,12 +16,16 @@ bash scripts/initialize-repo.sh --prune node-typescript
 ```
 
 Owner and repository name are read from the `origin` remote; pass `-Name`
-or `-Owner` only to override them.
+or `-Owner` only to override them. Parameters and expected output are
+documented in the template repository's README and in the scripts' own help
+(`Get-Help .\scripts\Initialize-Repo.ps1 -Detailed`,
+`bash scripts/initialize-repo.sh --help`).
 
 Stacks: `node-typescript`, `python`, `terraform-ansible`; pass several with
 commas, or none for a docs-only repository. The script:
 
-- puts the repository name (the checkout folder name, or `-Name`) into `README.md`;
+- replaces the template's `README.md` with the project README skeleton from
+  `docs/README.project.md`, titled with the repository name;
 - writes `* @<owner>` into `.github/CODEOWNERS`, the owner being the origin
   remote's account (pass `-Owner @org/team` for a team);
 - removes `.github/dependabot.yml` blocks whose manifest does not exist, so
