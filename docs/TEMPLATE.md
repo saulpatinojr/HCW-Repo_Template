@@ -45,15 +45,18 @@ contact" sections are placeholders by design and must be replaced by hand.
 Then add a `LICENSE` if the repository is public: the template ships none
 because the licence is a per-repository decision.
 
-## 2. Connect the three apps (browser)
+## 2. Connect the two apps (browser)
 
-1. <https://github.com/settings/installations> : Configure CodeRabbit, Qlty and
+1. <https://github.com/settings/installations> : Configure Qlty and
    GitGuardian, and add this repository to each.
 2. <https://qlty.sh/dashboard> : Add Project for this repository.
-3. Open one pull request and look for three signals: `GitGuardian Security
-   Checks`, the `qlty check` commit status, and a CodeRabbit walkthrough. A
-   public repository under 10 stars gets a CodeRabbit review only when asked:
-   comment `@coderabbitai review`.
+3. Open one pull request and look for two signals: `GitGuardian Security
+   Checks` and the `qlty check` commit status.
+
+CodeRabbit, the review bot that used to be the third app here, was removed
+from the template on 2026-11-06 on the owner's instruction, until further
+notice. If it comes back, its settings file `.coderabbit.yaml` is at
+<https://github.com/saulpatinojr/HCW-Repo_Template/blob/b266cb04cf8087321f609e07363579943fd9f884/.coderabbit.yaml>.
 
 GitGuardian's own settings live at
 <https://dashboard.gitguardian.com/settings/integrations/github> and apply to the
@@ -77,15 +80,10 @@ needs a GitHub Advanced Security licence, otherwise delete the workflow.
 
 ## 4. Ruleset (optional, after the first green PR)
 
-Require the checks you saw in step 2.3 and the `Analyze (actions)` job. Do not make CodeRabbit's approval the
-required review unless the app has **Pull requests: Read and write** and the
-repository can live with one included review per hour on the open-source tier.
+Require the checks you saw in step 2.3 and the `Analyze (actions)` job.
 
 ## How the configs are layered
 
-- `.coderabbit.yaml` is complete and stack-agnostic: path instructions keyed by
-  glob cost nothing where the glob matches no file, and tools that need a
-  project config run only where one exists.
 - `.qlty/qlty.toml` holds only plugins that need no project config; stack
   plugins come from `overlays/<stack>/qlty.toml.part`, because a Qlty plugin
   pointed at a missing config fails every run.

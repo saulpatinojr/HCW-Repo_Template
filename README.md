@@ -94,7 +94,7 @@ again. Nothing it does needs input while it runs.
 - Security: `.github/workflows/codeql.yml` with
   `.github/codeql/codeql-config.yml`, `.github/workflows/dependency-review.yml`,
   `.github/dependabot.yml`.
-- Review apps: `.coderabbit.yaml` (CodeRabbit), `.qlty/qlty.toml` plus
+- Review apps: `.qlty/qlty.toml` plus
   `overlays/` (Qlty), `.github/copilot-instructions.md`; lint configuration
   `.yamllint.yaml` and `.markdownlint.yaml`.
 - Hygiene: `.editorconfig`, `.gitattributes`, `.gitignore`; `docs/adr/`

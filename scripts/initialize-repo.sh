@@ -75,4 +75,4 @@ else
 fi
 
 if [ "$prune" -eq 1 ]; then rm -rf overlays scripts; echo "pruned overlays/ and scripts/"; fi
-printf '\nNext: docs/TEMPLATE.md section 2 (connect the three apps), then replace the placeholder sections in .github/SECURITY.md.\n'
+printf '\nNext: docs/TEMPLATE.md section 2 (connect the two apps), then replace the placeholder sections in .github/SECURITY.md.\n'

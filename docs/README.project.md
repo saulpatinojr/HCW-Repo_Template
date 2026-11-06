@@ -18,7 +18,7 @@ This repository was created from the organisation's template repository. It carr
   templates; not loaded by GitHub)
 - `.github/workflows/codeql.yml` with `.github/codeql/codeql-config.yml`,
   `.github/workflows/dependency-review.yml`, `.github/dependabot.yml`
-- `.github/copilot-instructions.md`, `.coderabbit.yaml` (CodeRabbit),
+- `.github/copilot-instructions.md`,
   `.qlty/qlty.toml` (Qlty), `.yamllint.yaml`, `.markdownlint.yaml`
 - `.editorconfig`, `.gitattributes`, `.gitignore`, `docs/adr/`
 

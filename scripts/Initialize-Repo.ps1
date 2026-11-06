@@ -144,4 +144,4 @@ if ($Prune) {
   Write-Host 'pruned overlays/ and scripts/'
 }
 Write-Host ''
-Write-Host 'Next: docs/TEMPLATE.md section 2 (connect the three apps), then replace the placeholder sections in .github/SECURITY.md.'
+Write-Host 'Next: docs/TEMPLATE.md section 2 (connect the two apps), then replace the placeholder sections in .github/SECURITY.md.'
